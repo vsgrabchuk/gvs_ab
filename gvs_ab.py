@@ -212,6 +212,7 @@ def poisson_bootstrap_ctr(
     likes_2, 
     views_2, 
     n_simulations=5000,
+    boost=True,
     alpha=0.05,
     bins=100,
     print_info=True
@@ -233,6 +234,8 @@ def poisson_bootstrap_ctr(
         Количество симуляций
     alpha: float, default 0.05
         Уровень значимости
+    boost: bool, default True
+        Ускорение вычислений
     bins: int, default 100
         Количество столбиков для гистограммы
     print_info: bool, default True
@@ -253,14 +256,26 @@ def poisson_bootstrap_ctr(
     views_2 = np.asarray(views_2)
     
     # Непосредственно вычисления
-    weights_1 = stats.poisson(1).rvs(
-        (n_simulations, len(likes_1)))
-    weights_2 = stats.poisson(1).rvs(
-        (n_simulations, len(likes_2)))
+    if boost:  # Использование фишек numpy для ускорения
+        weights_1 = ss.poisson(1).rvs(
+            (n_simulations, len(likes_1)))
+        weights_2 = ss.poisson(1).rvs(
+            (n_simulations, len(likes_2)))
+        CTR_1 = (weights_1@likes_1) / (weights_1@views_1)
+        CTR_2 = (weights_2@likes_2) / (weights_2@views_2)
+    else:  # Работает медленней (в 2 раза?), но экономит память
+        CTR_1 = []
+        CTR_2 = []
+        n_1 = len(likes_1)
+        n_2 = len(likes_2)
+        for _ in range(n_simulations):
+            weights_1 = ss.poisson(1).rvs(n_1)
+            weights_2 = ss.poisson(1).rvs(n_2)
+            CTR_1.append( (weights_1@likes_1) / (weights_1@views_1) )
+            CTR_2.append( (weights_2@likes_2) / (weights_2@views_2) )
+        CTR_1 = np.asarray(CTR_1)
+        CTR_2 = np.asarray(CTR_2)
 
-    CTR_1 = (weights_1@likes_1) / (weights_1@views_1)
-    CTR_2 = (weights_2@likes_2) / (weights_2@views_2)
-    
     boot_data = pd.Series(CTR_1 - CTR_2)
     
     # Вычисление квантилей
