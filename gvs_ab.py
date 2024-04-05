@@ -97,7 +97,7 @@ def aa_test(
 def bootstrap_test(
     s1,
     s2,
-    n_ss=5000,
+    n_simulations=5000,
     statistic_func=np.mean,
     alpha=0.05,
     bins=100,
@@ -113,9 +113,8 @@ def bootstrap_test(
         Выборка 1
     s2: pandas.Series
         Выборка 2
-    n_ss: int, default 5000
-        Количество bootstrap подвыборок (bootstrab subsamples)
-        bootstrap подвыборка - подвыборка с повторениями
+    n_simulations: int, default 5000
+        Количество симуляций
     statistic_func: callable, default np.mean
         Функция для вычисления интересующей статистики
     alpha: float, default 0.05
@@ -142,7 +141,7 @@ def bootstrap_test(
 
     # Распределение разницы статистик подвыборок
     boot_data = []
-    my_range = range(n_ss)
+    my_range = range(n_simulations)
     if print_info:
         my_range = tqdm(my_range)
     for i in my_range:  # извлекаем подвыборки
