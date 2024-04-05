@@ -4,4 +4,4 @@
 
 Функционал:
 1. A/A тест (aa_test)
-2. bootstrap (bootstrap)
+2. bootstrap (bootstrap_test)
