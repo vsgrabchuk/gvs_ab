@@ -276,7 +276,7 @@ def poisson_bootstrap_ctr(
         CTR_1 = np.asarray(CTR_1)
         CTR_2 = np.asarray(CTR_2)
 
-    boot_data = pd.Series(CTR_1 - CTR_2)
+    boot_data = pd.Series(CTR_2 - CTR_1)
     
     # Вычисление квантилей
     left_quant = alpha / 2
