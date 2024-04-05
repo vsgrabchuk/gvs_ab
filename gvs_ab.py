@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from scipy import stats as st
+from scipy import stats as ss
 import statsmodels.api as sm
 
 import matplotlib.pyplot as plt
@@ -61,9 +61,9 @@ def aa_test(
         ss2 = s2.sample(n_ss, replace=False)
         # Сравнение подвыборок
         if test == 't':  # t-тест с поправкой Уэлча
-            test_res = st.ttest_ind(ss1, ss2, equal_var=False)
+            test_res = ss.ttest_ind(ss1, ss2, equal_var=False)
         elif test == 'u':  # U-тест
-            test_res = st.mannwhitneyu(ss1, ss2)
+            test_res = ss.mannwhitneyu(ss1, ss2)
             
         p_vals.append(test_res[1]) # Сохраняем p-value
         
@@ -87,7 +87,7 @@ def aa_test(
         plt.ylabel('frequency')
         plt.title(f"FPR: {fpr}") 
         
-        sm.qqplot(np.array(p_vals), dist=st.uniform, line="45")
+        sm.qqplot(np.array(p_vals), dist=ss.uniform, line="45")
 
         plt.show()
 
@@ -166,12 +166,12 @@ def bootstrap_test(
     # Вычисление p-value
     # (из предположения, что распределение разницы статистик подвыборок - нормальное)
     if p_val_evaluation:
-        p_1 = st.norm.cdf(
+        p_1 = ss.norm.cdf(
             x=0,
             loc=boot_data.mean(),
             scale=boot_data.std()
         )
-        p_2 = st.norm.cdf(
+        p_2 = ss.norm.cdf(
             x=0,
             loc=-boot_data.mean(),
             scale=boot_data.std()
