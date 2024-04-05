@@ -147,7 +147,7 @@ def bootstrap_test(
     for i in my_range:  # извлекаем подвыборки
         ss1 = s1.sample(ss1_size, replace=True).values
         ss2 = s2.sample(ss2_size, replace=True).values
-        boot_data.append(statistic_func(ss1)-statistic_func(ss2))
+        boot_data.append(statistic_func(ss2)-statistic_func(ss1))
 
     boot_data = pd.Series(boot_data)
 
