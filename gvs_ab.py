@@ -132,8 +132,8 @@ def bootstrap_test(
         Находится ли 0 в ДИ
     boot_data: pandas.Series
         Расрпределение разницы метрик бутстрап выборок
-    quantiles: dict
-        Словарь с квантилями
+    quantiles: pandas.Series
+        Значения квантилей, ограничивающих ДИ
     '''
     # Размер бутстрап подвыборок
     ss1_size = len(s1)
@@ -202,5 +202,100 @@ def bootstrap_test(
         plt.show()
         if p_val_evaluation:
             print(f'p-value: {p_value}')
+
+    return is_0_in_ci, boot_data, quantiles
+
+
+def poisson_bootstrap_ctr(
+    likes_1, 
+    views_1, 
+    likes_2, 
+    views_2, 
+    n_simulations=5000,
+    alpha=0.05,
+    bins=100,
+    print_info=True
+):
+    """
+    Функция реализует пуассоновский бутстрап
+    
+    Parameters:
+    -----------
+    likes_1: array-like
+        Вектор, элементы которого - число лайков каждого пользователя выборки 1
+    likes_2: array-like
+        Вектор, элементы которого - число лайков каждого пользователя выборки 2
+    views_1: array-like
+        Вектор, элементы которого - число просмотров каждого пользователя выборки 1
+    views_2: array-like
+        Вектор, элементы которого - число просмотров каждого пользователя выборки 2
+    n_simulations: int, default 5000
+        Количество симуляций
+    alpha: float, default 0.05
+        Уровень значимости
+    bins: int, default 100
+        Количество столбиков для гистограммы
+    print_info: bool, default True
+        Вывод на экран информации (в т.ч. графика)
+        
+    Returns:
+    --------
+    is_0_in_ci: bool
+        Находится ли 0 в ДИ
+    boot_data: pandas.Series
+        Расрпределение разницы метрик бутстрап выборок
+    quantiles: pandas.Series
+        Значения квантилей, ограничивающих ДИ
+    """
+    likes_1 = np.asarray(likes_1)
+    likes_2 = np.asarray(likes_2)
+    views_1 = np.asarray(views_1)
+    views_2 = np.asarray(views_2)
+    
+    # Непосредственно вычисления
+    weights_1 = stats.poisson(1).rvs(
+        (n_simulations, len(likes_1)))
+    weights_2 = stats.poisson(1).rvs(
+        (n_simulations, len(likes_2)))
+
+    CTR_1 = (weights_1@likes_1) / (weights_1@views_1)
+    CTR_2 = (weights_2@likes_2) / (weights_2@views_2)
+    
+    boot_data = pd.Series(CTR_1 - CTR_2)
+    
+    # Вычисление квантилей
+    left_quant = alpha / 2
+    right_quant = 1 - left_quant
+    quantiles = boot_data.quantile([left_quant, right_quant])
+    quantiles.columns = ['value']
+
+    # Статзначимость отличий выборок
+    if quantiles.iloc[0] <= 0 <= quantiles.iloc[1]:
+        is_0_in_ci = True
+    else:
+        is_0_in_ci = False
+
+    # Визуализация
+    if print_info:
+        hist_ys = []
+        _, _, bars = plt.hist(boot_data, bins=bins)
+        for bar in bars:
+            hist_ys.append(bar.get_height())
+            bar.set_edgecolor('black')
+            if quantiles.iloc[0] <= bar.get_x() <= quantiles.iloc[1]:
+                # Столбик в ДИ
+                bar.set_facecolor('grey')
+            else:
+                bar.set_facecolor('#f74a64')
+        plt.style.use('ggplot')
+        plt.vlines(quantiles, ymin=0, ymax=max(hist_ys), linestyle='--', colors='black')  # Отображение квантилей
+        if quantiles.iloc[0] <= 0 <= quantiles.iloc[1]:  # Подсветка нуля
+            plt.vlines(0, ymin=0, ymax=max(hist_ys), colors='#40d140')  # H0
+        else:
+            plt.vlines(0, ymin=0, ymax=max(hist_ys), colors='#f74a64')  # H1
+        plt.xlabel('metric difference')
+        plt.ylabel('frequency')
+        plt.title("Subsamples metric difference")
+        plt.show()
 
     return is_0_in_ci, boot_data, quantiles
