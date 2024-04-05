@@ -332,3 +332,31 @@ def bucketization(
     plt.ylabel('freq')
 
     return new_df
+
+
+def laplace_smoothing(x, y, gamma=5.):
+    """
+    Функция реализует сглаживание Лапласа для поэлементной метрики отношения x/y
+    
+    Parameters:
+    -----------
+    x: array-like
+        Числитель для вычисления поэлементной метрики
+    y: array-like
+        Знаменатель для вычисления поэлементной метрики
+    gamma: float, default 5.
+        Гиперпараметр для сглаживания
+    
+    Returns:
+    --------
+        ratios: np.array
+            Сглаженная поэлементная метрика
+    """
+    x = np.asarray(x)
+    y = np.asarray(y)
+    
+    global_ratio = x.sum() / y.sum()
+    
+    ratios = (x+gamma*global_ratio) / (y+gamma)
+    
+    return ratios
