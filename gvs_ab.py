@@ -299,3 +299,36 @@ def poisson_bootstrap_ctr(
         plt.show()
 
     return is_0_in_ci, boot_data, quantiles
+
+
+def bucketization(
+    df,
+    column,
+    buckets
+):
+    """
+    Функция добавляет в df колонку с бакетом, используя хеш от column
+
+    Parameters:
+    -----------
+    df: pandas.DataFrame
+    Таблица, которю необходимо модифицировать
+    column: str
+    Колонка, в соответствии с которой формируется бакет (считается хеш)
+    buckets: int
+    Количество бакетов
+
+    Returns:
+    --------
+    new_df: pandas.DataFrame
+    Новый df с дополнительной колонкой bucket
+    """
+    new_df = pd.DataFrame(df)
+    new_df['bucket'] = df[column].swifter.apply(lambda x: hash(x)%buckets)
+
+    # Проверка корректности распределения наблюдений по бакетам
+    new_df.bucket.hist();
+    plt.xlabel('bucket')
+    plt.ylabel('freq')
+
+    return new_df
