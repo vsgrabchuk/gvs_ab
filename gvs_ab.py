@@ -4,6 +4,7 @@ from scipy import stats as ss
 import statsmodels.api as sm
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 from tqdm.auto import tqdm
 
@@ -327,22 +328,23 @@ def bucketization(
     Parameters:
     -----------
     df: pandas.DataFrame
-    Таблица, которю необходимо модифицировать
+        Таблица, которю необходимо модифицировать
     column: str
-    Колонка, в соответствии с которой формируется бакет (считается хеш)
+        Колонка, в соответствии с которой формируется бакет (считается хеш)
     buckets: int
-    Количество бакетов
+        Количество бакетов
 
     Returns:
     --------
     new_df: pandas.DataFrame
-    Новый df с дополнительной колонкой bucket
+        Новый df с дополнительной колонкой bucket
     """
     new_df = pd.DataFrame(df)
     new_df['bucket'] = df[column].swifter.apply(lambda x: hash(x)%buckets)
 
     # Проверка корректности распределения наблюдений по бакетам
-    new_df.bucket.hist();
+    print(f'bucket_size ~ {round(new_df.shape[0] / buckets)}')
+    sns.histplot(new_df.bucket, bins=buckets)
     plt.xlabel('bucket')
     plt.ylabel('freq')
 
