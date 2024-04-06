@@ -1,3 +1,10 @@
+"""
+This module helps to execute ab test and more
+
+Created by vsgrabchuk
+"""
+
+
 import pandas as pd
 import numpy as np
 from scipy import stats as ss
