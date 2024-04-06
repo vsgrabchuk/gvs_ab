@@ -1,7 +1,7 @@
 """
-This module helps to execute ab test and more
+This module helps to execute ab test and more.
 
-Created by vsgrabchuk
+Created by vsgrabchuk.
 """
 
 
