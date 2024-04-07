@@ -426,3 +426,40 @@ def linearization_ratio(x_0, y_0, x_1, y_1):
     x_1_lin = x_1 - k * y_1
     
     return x_0_lin, x_1_lin
+
+
+def get_ttest_sample_size(eps, std_1, std_2, alpha=0.05, beta=0.2):
+    """
+    Функция для расчёта размера выборки при использовании t-test
+    
+    Parameters:
+    -----------
+    eps: float
+        MDE
+    std_1: float
+        std 1-й выборки
+    std_2: float
+        std 2-й выборки
+    alpha: float, default 0.05
+        Допустимый FPR
+    beta: float, default 0.2
+        Допустимый FNR
+        
+    Returns:
+    --------
+    sample_size: int
+        Требуемый размер выборки для детектирования заданного MDE
+        с учётом допустимых вероятностей ошибок
+    """
+    ppf_alpha = ss.norm.ppf(1 - alpha/2, loc=0, scale=1)
+    ppf_beta = ss.norm.ppf(1 - beta, loc=0, scale=1)
+    
+    z_scores_sum_squared = (ppf_alpha + ppf_beta) ** 2
+    
+    sample_size = int(
+        np.ceil(
+            z_scores_sum_squared * (std_1**2 + std_2**2) / (eps**2)
+        )
+    )
+    
+    return sample_size
