@@ -336,10 +336,11 @@ def bucketization(
     -----------
     df: pandas.DataFrame
         Таблица, которю необходимо модифицировать
-    column: str
-        Колонка, в соответствии с которой формируется бакет (считается хеш)
     buckets: int
         Количество бакетов
+    column: str
+        Колонка, в соответствии с которой формируется бакет (считается хеш)
+        Если указано None, то бакет считается рандомно
 
     Returns:
     --------
@@ -347,7 +348,10 @@ def bucketization(
         Новый df с дополнительной колонкой bucket
     """
     new_df = pd.DataFrame(df)
-    new_df['bucket'] = df[column].swifter.apply(lambda x: hash(x)%buckets)
+    if column is None:
+        new_df['bucket'] = ss.randint.rvs(low=0, high=buckets, size=new_df.shape[0])
+    else:
+        new_df['bucket'] = df[column].swifter.apply(lambda x: hash(x)%buckets)
 
     # Проверка корректности распределения наблюдений по бакетам
     print(f'bucket_size ~ {round(new_df.shape[0] / buckets)}')
