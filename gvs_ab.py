@@ -499,6 +499,6 @@ def func_for_mtx_rows(func, *args, res_idx=None, **kwargs):
     func_for_mtx_rows(scipy.stats.ttest_ind, mtx_a, mtx_b)
     '''
     if res_idx is None:
-        return np.asarray([test(*func_args, **kwargs) for func_args in zip(*args)])
+        return np.asarray([func(*func_args, **kwargs) for func_args in zip(*args)])
     else:
-        return np.asarray([test(*func_args, **kwargs)[res_idx] for func_args in zip(*args)])
+        return np.asarray([func(*func_args, **kwargs)[res_idx] for func_args in zip(*args)])
