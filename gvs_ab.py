@@ -473,25 +473,32 @@ def get_ttest_sample_size(eps, std_1, std_2, alpha=0.05, beta=0.2):
     return sample_size
 
 
-def tests_for_matrices(test, *args, res_idx=1, **kwargs):
+def func_for_mtx_rows(func, *args, res_idx=None, **kwargs):
     '''
-    Функция позволяет использовать матрицы в качестве входных данных для статистических тестов
+    Функция позволяет использовать матрицы в качестве входных данных для обычных функций
     
     Parameters:
     -----------
-    test: callable
-        Используемый статтест 
-            Можно задать аргументы с помощью характерных именованных аргументов текущей функции
-            или с помощью functools.partial
+    func: callable
+        Используемая функция
     args: nd.array[nxm]
-        Набор контрольных контрольных и тестовых выборок для теста в виде матриц, 
-        где каждая строка - отдельный эксперимент
+        Матрицы, строки которых - аргументы для func
     res_idx: int, default 1
-        Индекс для доставания нужного элемента из возвращаемых значений теста
+        Индекс элемента кортежа, возвращаемого func. Элемент будет возвращён текущей функцией
+    kwargs
+        Именованные аргументы для func
     
     Returns:
     --------
     np.array
-        Набор возвращаемых значений из тестов
+        Набор возвращаемых значений func
+
+
+    Examples:
+    ---------
+    func_for_mtx_rows(scipy.stats.ttest_ind, mtx_a, mtx_b)
     '''
-    return np.fromiter((test(*test_args, **kwargs)[res_idx] for test_args in zip(*args)), dtype=float)
+    if res_idx is None:
+        return np.asarray([test(*test_args, **kwargs) for test_args in zip(*args)])
+    else:
+        return np.asarray([test(*test_args, **kwargs)[res_idx] for test_args in zip(*args)])
