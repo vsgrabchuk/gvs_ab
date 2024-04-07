@@ -8,3 +8,5 @@
 3. Пуассоновский бутстрап для CTR (poisson_bootstrap_ctr)
 4. Бакетизация (bucketization)
 5. Сглаживание Лапласа (laplace_smoothing)
+6. Расчёт размера выборки для t-test'a (get_ttest_sample_size)
+7. Применение теста для выборок в матричном виде (tests_for_matrices)
