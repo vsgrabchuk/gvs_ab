@@ -327,7 +327,8 @@ def poisson_bootstrap_ctr(
 def bucketization(
     df,
     column,
-    buckets
+    buckets,
+    print_info=True
 ):
     """
     Функция добавляет в df колонку с бакетом, используя хеш от column
@@ -341,6 +342,8 @@ def bucketization(
     column: str
         Колонка, в соответствии с которой формируется бакет (считается хеш)
         Если указано None, то бакет считается рандомно
+    print_info: bool, default True
+        Отображение инфы по бакетам
 
     Returns:
     --------
@@ -352,12 +355,13 @@ def bucketization(
         new_df['bucket'] = ss.randint.rvs(low=0, high=buckets, size=new_df.shape[0])
     else:
         new_df['bucket'] = df[column].swifter.apply(lambda x: hash(x)%buckets)
-
+    
     # Проверка корректности распределения наблюдений по бакетам
-    print(f'bucket_size ~ {round(new_df.shape[0] / buckets)}')
-    sns.histplot(new_df.bucket, bins=buckets)
-    plt.xlabel('bucket')
-    plt.ylabel('freq')
+    if print_info:
+        print(f'bucket_size ~ {round(new_df.shape[0] / buckets)}')
+        sns.histplot(new_df.bucket, bins=buckets)
+        plt.xlabel('bucket')
+        plt.ylabel('freq')
 
     return new_df
 
