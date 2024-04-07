@@ -473,18 +473,19 @@ def get_ttest_sample_size(eps, std_1, std_2, alpha=0.05, beta=0.2):
     return sample_size
 
 
-def tests_for_matrices(a, b, test, res_idx=1):
+def tests_for_matrices(test, *args, res_idx=1, **kwargs):
     '''
     Функция позволяет использовать матрицы в качестве входных данных для статистических тестов
     
     Parameters:
     -----------
-    a: nd.array[nxm]
-        Набор контрольных выборок, где каждая отдельная выборка записана в строке матрицы
-    b: nd.array[nxm]
-        Набор тестовых выборок, которые построчно соответствуют выборкам из матрицы "A"
     test: callable
-        Используемый статтест (можно задать аргументы с помощью functools.partial)
+        Используемый статтест 
+            Можно задать аргументы с помощью характерных именованных аргументов текущей функции
+            или с помощью functools.partial
+    args: nd.array[nxm]
+        Набор контрольных контрольных и тестовых выборок для теста в виде матриц, 
+        где каждая строка - отдельный эксперимент
     res_idx: int, default 1
         Индекс для доставания нужного элемента из возвращаемых значений теста
     
@@ -493,4 +494,4 @@ def tests_for_matrices(a, b, test, res_idx=1):
     np.array
         Набор возвращаемых значений из тестов
     '''
-    return np.fromiter((test(a_i, b_i)[res_idx] for a_i, b_i in zip(a, b)), dtype=float)
+    return np.fromiter((test(*test_args, **kwargs)[res_idx] for test_args in zip(*args)), dtype=float)
