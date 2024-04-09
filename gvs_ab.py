@@ -514,7 +514,7 @@ def func_for_mtx_rows(func, *args, cur_func_res_idx=None, cur_func_print_info=Fa
         data = zip(*args)
 
 
-    if res_idx is None:
+    if cur_func_res_idx is None:
         return np.asarray([func(*func_args, **kwargs) for func_args in data])
     else:
         return np.asarray([func(*func_args, **kwargs)[cur_func_res_idx] for func_args in data])
