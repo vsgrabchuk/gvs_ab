@@ -100,6 +100,7 @@ def aa_test(
         plt.show()
 
     return fpr
+    # Обобщить применение теста
 
 
 def bootstrap_test(
@@ -212,6 +213,9 @@ def bootstrap_test(
             print(f'p-value: {p_value}')
 
     return is_0_in_ci, boot_data, quantiles
+    # Вместо is_0_in_ci использовать is_h0, как аналог p-value
+    # Добавить возможность выбрать статтест для сравнения подвыборок
+    # Загнать визуализацию в отдельную функцию?
 
 
 def poisson_bootstrap_ctr(
@@ -322,6 +326,9 @@ def poisson_bootstrap_ctr(
         plt.show()
 
     return is_0_in_ci, boot_data, quantiles
+    # Вместо is_0_in_ci использовать is_h0, как аналог p-value
+    # Можно ли сделать универсальней? (не только для CTR)
+    # Загнать визуализацию в отдельную функцию?
 
 
 def bucketization(
@@ -364,6 +371,7 @@ def bucketization(
         plt.ylabel('freq')
 
     return new_df
+    # Сделать ice-bucket test?
 
 
 def laplace_smoothing(x, y, gamma=5.):
@@ -502,3 +510,52 @@ def func_for_mtx_rows(func, *args, res_idx=None, **kwargs):
         return np.asarray([func(*func_args, **kwargs) for func_args in zip(*args)])
     else:
         return np.asarray([func(*func_args, **kwargs)[res_idx] for func_args in zip(*args)])
+
+
+
+def ttest_vect(a, b, equal_var=True):
+    """
+    Реализация векторизованного t-test'а
+    *Почему-то не ускоряет вычисления :(
+    
+    Parameters:
+    -----------
+    a: np.array[nxm]
+        Массив выборок "a"
+    b: np.array[nxm]
+        Массив выборок "b"
+    equal_var: bool, default True
+    
+    Returns:
+    --------
+    t: np.array
+        Значения t-статистики
+    pvals: np.array
+        Значения p-value
+    """
+    
+    n_a = a.shape[1]
+    n_b = b.shape[1]
+
+    mean_a = a.mean(axis=1)
+    mean_b = b.mean(axis=1)
+    
+    # Долго считается дисперсия
+    var_a = a.var(axis=1, ddof=1)
+    var_b = b.var(axis=1, ddof=1)
+
+    if equal_var:
+        df = n_a + n_b - 2
+        se = np.sqrt(
+            ((n_a-1)*var_a + (n_b-1)*var_b) * (1/n_a + 1/n_b) / df
+        )
+    else:
+        df = (var_a/n_a + var_b/n_b)**2 / ( (var_a/n_a)**2/(n_a-1) + (var_b/n_b)**2/(n_b-1) )
+        se = np.sqrt(var_a/n_a + var_b/n_b)
+    
+    t = (mean_a - mean_b) / se
+    
+    t_dist = ss.t(df)
+    pvals = 2 * t_dist.cdf(-np.abs(t))
+    
+    return t, pvals
