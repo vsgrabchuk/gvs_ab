@@ -481,7 +481,7 @@ def get_ttest_sample_size(eps, std_1, std_2, alpha=0.05, beta=0.2):
     return sample_size
 
 
-def func_for_mtx_rows(func, *args, res_idx=None, **kwargs):
+def func_for_mtx_rows(func, *args, cur_func_res_idx=None, cur_func_print_info=False, **kwargs):
     '''
     Функция позволяет использовать матрицы в качестве входных данных для обычных функций
     
@@ -491,8 +491,10 @@ def func_for_mtx_rows(func, *args, res_idx=None, **kwargs):
         Используемая функция
     args: nd.array[nxm]
         Матрицы, строки которых - аргументы для func
-    res_idx: int, default 1
+    cur_func_res_idx: int, default None
         Индекс элемента кортежа, возвращаемого func. Элемент будет возвращён текущей функцией
+    cur_func_print_info=False: bool, default
+        Отображение статусбара
     kwargs
         Именованные аргументы для func
     
@@ -506,10 +508,16 @@ def func_for_mtx_rows(func, *args, res_idx=None, **kwargs):
     ---------
     func_for_mtx_rows(scipy.stats.ttest_ind, mtx_a, mtx_b)
     '''
-    if res_idx is None:
-        return np.asarray([func(*func_args, **kwargs) for func_args in zip(*args)])
+    if cur_func_print_info:
+        data = tqdm(zip(*args))
     else:
-        return np.asarray([func(*func_args, **kwargs)[res_idx] for func_args in zip(*args)])
+        data = zip(*args)
+
+
+    if res_idx is None:
+        return np.asarray([func(*func_args, **kwargs) for func_args in data])
+    else:
+        return np.asarray([func(*func_args, **kwargs)[cur_func_res_idx] for func_args in data])
 
 
 
